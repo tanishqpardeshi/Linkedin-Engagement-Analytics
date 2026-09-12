@@ -2,7 +2,10 @@ import pandas as pd
 from pathlib import Path
 
 
-# Input and output file paths
+# ---------------------------------
+# FILE PATHS
+# ---------------------------------
+
 INPUT_PATH = Path(
     "data/processed/cleaned_post_engagement.csv"
 )
@@ -12,6 +15,10 @@ OUTPUT_PATH = Path(
 )
 
 
+# ---------------------------------
+# TIME PERIOD FUNCTION
+# ---------------------------------
+
 def get_time_period(hour):
     """
     Categorize a posting hour into a time period.
@@ -19,13 +26,20 @@ def get_time_period(hour):
 
     if 5 <= hour < 12:
         return "Morning"
+
     elif 12 <= hour < 17:
         return "Afternoon"
+
     elif 17 <= hour < 21:
         return "Evening"
+
     else:
         return "Night"
 
+
+# ---------------------------------
+# FEATURE ENGINEERING
+# ---------------------------------
 
 def create_features():
 
@@ -67,10 +81,10 @@ def create_features():
 
 
     # ---------------------------------
-    # VIRALITY FEATURE
+    # VIRALITY SCORE
     # ---------------------------------
 
-    # Shares have the highest importance,
+    # Shares receive the highest weight,
     # followed by comments and likes.
     df["virality_score"] = (
         (df["likes"] * 1)
@@ -83,7 +97,8 @@ def create_features():
     # POSTING TIME FEATURES
     # ---------------------------------
 
-    # Convert post_time temporarily for analysis
+    # Convert post_time temporarily
+    # so the original post_time column remains unchanged.
     time_data = pd.to_datetime(
         df["post_time"],
         format="%H:%M",
@@ -95,9 +110,27 @@ def create_features():
     df["post_hour"] = time_data.dt.hour
 
 
-    # Categorize posting time
+    # Create time-period category
     df["time_period"] = df["post_hour"].apply(
         get_time_period
+    )
+
+
+    # ---------------------------------
+    # CONTENT LENGTH FEATURES
+    # ---------------------------------
+
+    # Divide posts into four groups based
+    # on the actual distribution of content length.
+    df["content_length_category"] = pd.qcut(
+        df["content_length"],
+        q=4,
+        labels=[
+            "Short",
+            "Medium",
+            "Long",
+            "Very Long"
+        ]
     )
 
 
@@ -111,7 +144,12 @@ def create_features():
     )
 
 
+    # ---------------------------------
+    # DISPLAY RESULTS
+    # ---------------------------------
+
     print("\nNew columns created:")
+
     print(
         [
             "total_engagement",
@@ -120,12 +158,14 @@ def create_features():
             "share_rate",
             "virality_score",
             "post_hour",
-            "time_period"
+            "time_period",
+            "content_length_category"
         ]
     )
 
 
     print("\nFeature dataset saved successfully.")
+
     print(f"Location: {OUTPUT_PATH}")
 
 
@@ -141,11 +181,16 @@ def create_features():
                 "share_rate",
                 "virality_score",
                 "post_hour",
-                "time_period"
+                "time_period",
+                "content_length_category"
             ]
         ].head()
     )
 
+
+# ---------------------------------
+# RUN PROGRAM
+# ---------------------------------
 
 if __name__ == "__main__":
     create_features()

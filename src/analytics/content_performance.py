@@ -141,5 +141,35 @@ def analyze_content_performance():
     print(hour_performance)
 
 
+    # ---------------------------------
+    # PERFORMANCE BY TIME PERIOD
+    # ---------------------------------
+
+    print("\n" + "-" * 70)
+    print("PERFORMANCE BY TIME PERIOD")
+    print("-" * 70)
+
+    time_period_performance = (
+        df.groupby("time_period")
+        .agg(
+            posts=("post_id", "count"),
+            avg_engagement_rate=("engagement_rate", "mean"),
+            avg_virality_score=("virality_score", "mean"),
+            avg_total_engagement=("total_engagement", "mean")
+        )
+        .round(2)
+        .sort_values(
+            by="avg_engagement_rate",
+            ascending=False
+        )
+    )
+
+    print(time_period_performance)
+
+
+# ---------------------------------
+# RUN ANALYSIS
+# ---------------------------------
+
 if __name__ == "__main__":
     analyze_content_performance()

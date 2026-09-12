@@ -1,3 +1,10 @@
 pandas
 numpy
 openpyxl
+scipy
+scikit-learn
+textblob
+vaderSentiment
+matplotlib
+streamlit
+    
